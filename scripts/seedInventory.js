@@ -12,35 +12,44 @@ const seed = async () => {
 
         console.log("MongoDB connected");
 
-        await Product.deleteMany({});
-        await Inventory.deleteMany({});
+        const product = await Product.findOneAndUpdate(
+            { productId: "P1001" },
+            {
+                $setOnInsert: {
+                    productId: "P1001",
+                    name: "Flash Sale Product",
+                    description: "SALESTORM limited stock product",
+                    price: 999,
+                    category: "Electronics",
+                    active: true
+                }
+            },
+            { new: true, upsert: true, runValidators: true }
+        );
 
-        const product = await Product.create({
-            productId: "P1001",
-            name: "Flash Sale Product",
-            description: "SALESTORM limited stock product",
-            price: 999,
-            category: "Electronics",
-            active: true
-        });
-
-        await Inventory.create({
-            inventoryId: "I1001",
-            productId: product.productId,
-            availableQuantity: 100,
-            reservedQuantity: 0,
-            soldQuantity: 0,
-            version: 0
-        });
+        await Inventory.findOneAndUpdate(
+            { productId: product.productId },
+            {
+                $setOnInsert: {
+                    inventoryId: "I1001",
+                    productId: product.productId,
+                    availableQuantity: 100,
+                    reservedQuantity: 0,
+                    soldQuantity: 0,
+                    version: 0
+                }
+            },
+            { new: true, upsert: true, runValidators: true }
+        );
 
         console.log("Product created:", product.productId);
         console.log("Inventory created with 100 units");
 
-        await mongoose.connection.close();
-
     } catch (error) {
         console.error("Seed failed:", error.message);
-        process.exit(1);
+        process.exitCode = 1;
+    } finally {
+        await mongoose.connection.close();
     }
 };
 

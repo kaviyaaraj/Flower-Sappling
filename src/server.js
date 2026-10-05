@@ -4,6 +4,10 @@ const dotenv = require("dotenv");
 
 const connectDB = require("./config/db");
 const reservationRoutes = require("./routes/reservationRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const checkoutRoutes = require("./routes/checkoutRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 dotenv.config();
 
@@ -12,6 +16,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/checkout", checkoutRoutes);
+app.use("/api/payments", paymentRoutes);
 
 connectDB();
 
