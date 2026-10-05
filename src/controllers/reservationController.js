@@ -6,8 +6,11 @@ const reserveProduct = async (req, res) => {
             userId,
             productId,
             quantity,
-            idempotencyKey
+            idempotencyKey: bodyKey
         } = req.body || {};
+
+        // Frontend sends idempotencyKey as a header; fall back to body if header is absent
+        const idempotencyKey = req.headers["idempotency-key"] || bodyKey;
 
         // Validation
         if (!userId || !productId || !quantity || !idempotencyKey) {

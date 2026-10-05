@@ -32,11 +32,9 @@ const listProducts = async (req, res) => {
 
         return res.json({
             success: true,
-            data: {
-                products: products.map(toPublicProduct),
-                limit,
-                skip
-            }
+            products: products.map(toPublicProduct),
+            limit,
+            skip
         });
     } catch (error) {
         console.error(error);
@@ -52,12 +50,13 @@ const getProduct = async (req, res) => {
         }
 
         const inventory = await Inventory.findOne({ productId: product.productId }).select("availableQuantity -_id");
+        const publicProduct = toPublicProduct(product);
+        // Merge stock so the frontend can use product.stock directly
+        publicProduct.stock = inventory ? inventory.availableQuantity : 0;
+
         return res.json({
             success: true,
-            data: {
-                product: toPublicProduct(product),
-                inventory: { availableQuantity: inventory ? inventory.availableQuantity : 0 }
-            }
+            product: publicProduct
         });
     } catch (error) {
         console.error(error);

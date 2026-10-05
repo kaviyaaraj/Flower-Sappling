@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Reservation = require("../models/Reservation");
 const Product = require("../models/Product");
 const { reserveInventory } = require("./inventoryService");
+const inventoryCache = require("./inventoryCacheService");
 
 const createReservation = async ({
     userId,
@@ -78,6 +79,11 @@ const createReservation = async ({
 
             reservation = created[0];
         });
+
+        // Invalidate Redis cache for this product — the transaction just
+        // decremented availableQuantity in MongoDB via reserveInventory.
+        // The next inventory read will fetch the fresh value from the DB.
+        await inventoryCache.invalidate(productId);
 
         return {
             existing: false,
